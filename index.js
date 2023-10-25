@@ -1,41 +1,41 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const mailgun = require('mailgun-js');
 
-const javascript = require('body-parser');
+const api_key = 'key-16b7db209e23dbfaa47c168b5737118f'; 
+const domain = 'sandbox9d7ca6e5813c4f458649523ba189d722.mailgun.org'; 
+const mailgunInstance = mailgun({ apiKey: api_key, domain: domain });
 
-const reveal = require('express');
-const index = reveal();
+const index = express();
+index.use(bodyParser.urlencoded({ extended: true }));
+index.use(express.static('public'));
 
-
-var code_api = 'key-16b7db209e23dbfaa47c168b5737118f';
-var domain = 'sandbox9d7ca6e5813c4f458649523ba189d722.mailgun.org';
-var mailgun = require('mailgun-js')({apiKey: code_api, domain: domain});
- 
-var statics = {
-  from: ' From Sarangdhar <sarangdhar4837.be22@chitkara.edu.in>',
-  to: 'sarangdhar4837.be22@chitkara.edu.in',
-  subject: 'Sarangdhar web server',
-  text: 'i am sarangdhar and i am checking my first Mailgum'
-};
- 
-
-index.use(javascript .urlencoded({extended:true}))
-index.use(reveal.static("public"));
-index.get("/",function(req,res){  
-    res.sendFile(__dirname+"/index.html")
-})
-
-index.listen(5050, function(req, rev) 
-{
-    console.log('your server is in progress on 5050');
+index.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
 });
-index.post('/',function(req,res){
-    
-    const email= req.body.email;
-    console.log(req.body);
-    mailgun.messages().send(statics, function (error, body) {
-        if(error)
-        {
+
+index.post('/', (req, res) => {
+    const email = req.body.email;
+
+    const dataofmail = {
+        from: 'From Sarangdhar <sarangdhar4837.be22@chitkara.edu.in>',
+        to: email,
+        subject: 'Hii, test',
+        text: 'Testing',
+    };
+
+    mailgunInstance.messages().send(dataofmail, function (error, body) {
+        if (error) {
             console.log(error);
+            return res.status(500).send("Error");
+        } else {
+            console.log(body);
+            res.sendFile(__dirname + '/index.html');
         }
-      console.log(body);
     });
+});
+
+
+index.listen(8000, () => {
+    console.log("The Server is running");
 });
